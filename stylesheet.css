@@ -1,0 +1,21 @@
+div {
+  font-size: 40px;
+}
+
+.fruit {
+  color: pink;
+  margin: 20px;
+  padding-bottom: 20px;
+}
+
+#animal {
+  color: purple;
+}
+
+a {
+  font-size: 40px;
+}
+
+a:hover {
+  color: red;
+}
