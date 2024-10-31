@@ -1,0 +1,12 @@
+{
+    "posts": [
+        {
+            "id": "gardening",
+            "title": "Gardening"
+        },
+        {
+            "id": "cmacros",
+            "title": "C/C++ Macros"
+        }
+    ]
+}
