@@ -1,4 +1,4 @@
-# C/C++ Macros
+# Overview of C/C++ Macros
 
 The following are some examples of macros in C/C++:
 
