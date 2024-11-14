@@ -1,8 +1,8 @@
 {
     "posts": [
         {
-            "id": "gardening",
-            "title": "Gardening"
+            "id": "make-phony",
+            "title": "Adding a Feature to GNU Make"
         },
         {
             "id": "cmacros",
