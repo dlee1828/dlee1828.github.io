@@ -39,7 +39,7 @@ _install:
 
 The user could then run `make clean` or `make install` as usual, and `clean` and `install` would be treated as phony targets. 
 
-I decided to try adding this feature to Make. 
+I decided to try adding this feature to Make.
 
 I arbitrarily chose to work with version 4.3 of Make, released in 2020. I downloaded the source code and set up an Ubuntu Docker container within which to build and run Make. 
 
@@ -110,7 +110,7 @@ Once I had this function, I used it in the body of `enter_file` as such:
 
 (⬅️ indicates a line I added)
 
-```cpp
+```c
 struct file *
 enter_file (const char *name)
 {
@@ -163,7 +163,7 @@ enter_file (const char *name)
 
 There are two details worth discussing. The first concerns the following code:
 
-```cpp
+```c
  if (underscored) {
     name = name + 1;
   }   

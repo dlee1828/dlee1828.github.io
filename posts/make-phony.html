@@ -367,17 +367,16 @@ does not exist.</p>
 <p>Once I had this function, I used it in the body of
 <code>enter_file</code> as such:</p>
 <p>(⬅️ indicates a line I added)</p>
-<div class="sourceCode" id="cb8"><pre
-class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="kw">struct</span> file <span class="op">*</span></span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>enter_file <span class="op">(</span><span class="at">const</span> <span class="dt">char</span> <span class="op">*</span>name<span class="op">)</span></span>
+<div class="sourceCode" id="cb8"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="kw">struct</span> file <span class="op">*</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>enter_file <span class="op">(</span><span class="dt">const</span> <span class="dt">char</span> <span class="op">*</span>name<span class="op">)</span></span>
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
 <span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>  <span class="kw">struct</span> file <span class="op">*</span>f<span class="op">;</span></span>
-<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>  <span class="kw">struct</span> file <span class="op">*</span><span class="kw">new</span><span class="op">;</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>  <span class="kw">struct</span> file <span class="op">*</span>new<span class="op">;</span></span>
 <span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>  <span class="kw">struct</span> file <span class="op">**</span>file_slot<span class="op">;</span></span>
 <span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>  <span class="kw">struct</span> file file_key<span class="op">;</span></span>
 <span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>  <span class="ot">assert</span> <span class="op">(*</span>name <span class="op">!=</span> <span class="ch">&#39;</span><span class="sc">\0</span><span class="ch">&#39;</span><span class="op">);</span></span>
-<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>  <span class="ot">assert</span> <span class="op">(!</span> verify_flag <span class="op">||</span> strcache_iscached <span class="op">(</span>name<span class="op">));</span></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>  assert <span class="op">(*</span>name <span class="op">!=</span> <span class="ch">&#39;</span><span class="sc">\0</span><span class="ch">&#39;</span><span class="op">);</span></span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>  assert <span class="op">(!</span> verify_flag <span class="op">||</span> strcache_iscached <span class="op">(</span>name<span class="op">));</span></span>
 <span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>  <span class="dt">int</span> underscored <span class="op">=</span> name<span class="op">[</span><span class="dv">0</span><span class="op">]</span> <span class="op">==</span> <span class="ch">&#39;_&#39;</span><span class="op">;</span> <span class="co">// ⬅️</span></span>
 <span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> <span class="op">(</span>underscored<span class="op">)</span> <span class="op">{</span>                <span class="co">// ⬅️</span></span>
@@ -396,30 +395,29 @@ class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb8-1"><a href="#c
 <span id="cb8-26"><a href="#cb8-26" aria-hidden="true" tabindex="-1"></a>      <span class="cf">return</span> f<span class="op">;</span></span>
 <span id="cb8-27"><a href="#cb8-27" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
 <span id="cb8-28"><a href="#cb8-28" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-29"><a href="#cb8-29" aria-hidden="true" tabindex="-1"></a>  <span class="kw">new</span> <span class="op">=</span> xcalloc <span class="op">(</span><span class="kw">sizeof</span> <span class="op">(</span><span class="kw">struct</span> file<span class="op">));</span></span>
-<span id="cb8-30"><a href="#cb8-30" aria-hidden="true" tabindex="-1"></a>  <span class="kw">new</span><span class="op">-&gt;</span>name <span class="op">=</span> <span class="kw">new</span><span class="op">-&gt;</span>hname <span class="op">=</span> name<span class="op">;</span></span>
-<span id="cb8-31"><a href="#cb8-31" aria-hidden="true" tabindex="-1"></a>  <span class="kw">new</span><span class="op">-&gt;</span>update_status <span class="op">=</span> us_none<span class="op">;</span></span>
-<span id="cb8-32"><a href="#cb8-32" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> <span class="op">(</span>underscored<span class="op">)</span> make_file_phony<span class="op">(</span><span class="kw">new</span><span class="op">);</span> <span class="co">// ⬅️</span></span>
+<span id="cb8-29"><a href="#cb8-29" aria-hidden="true" tabindex="-1"></a>  new <span class="op">=</span> xcalloc <span class="op">(</span><span class="kw">sizeof</span> <span class="op">(</span><span class="kw">struct</span> file<span class="op">));</span></span>
+<span id="cb8-30"><a href="#cb8-30" aria-hidden="true" tabindex="-1"></a>  new<span class="op">-&gt;</span>name <span class="op">=</span> new<span class="op">-&gt;</span>hname <span class="op">=</span> name<span class="op">;</span></span>
+<span id="cb8-31"><a href="#cb8-31" aria-hidden="true" tabindex="-1"></a>  new<span class="op">-&gt;</span>update_status <span class="op">=</span> us_none<span class="op">;</span></span>
+<span id="cb8-32"><a href="#cb8-32" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> <span class="op">(</span>underscored<span class="op">)</span> make_file_phony<span class="op">(</span>new<span class="op">);</span> <span class="co">// ⬅️</span></span>
 <span id="cb8-33"><a href="#cb8-33" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb8-34"><a href="#cb8-34" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> <span class="op">(</span>HASH_VACANT <span class="op">(</span>f<span class="op">))</span></span>
 <span id="cb8-35"><a href="#cb8-35" aria-hidden="true" tabindex="-1"></a>    <span class="op">{</span></span>
-<span id="cb8-36"><a href="#cb8-36" aria-hidden="true" tabindex="-1"></a>      <span class="kw">new</span><span class="op">-&gt;</span>last <span class="op">=</span> <span class="kw">new</span><span class="op">;</span></span>
-<span id="cb8-37"><a href="#cb8-37" aria-hidden="true" tabindex="-1"></a>      hash_insert_at <span class="op">(&amp;</span>files<span class="op">,</span> <span class="kw">new</span><span class="op">,</span> file_slot<span class="op">);</span></span>
+<span id="cb8-36"><a href="#cb8-36" aria-hidden="true" tabindex="-1"></a>      new<span class="op">-&gt;</span>last <span class="op">=</span> new<span class="op">;</span></span>
+<span id="cb8-37"><a href="#cb8-37" aria-hidden="true" tabindex="-1"></a>      hash_insert_at <span class="op">(&amp;</span>files<span class="op">,</span> new<span class="op">,</span> file_slot<span class="op">);</span></span>
 <span id="cb8-38"><a href="#cb8-38" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
 <span id="cb8-39"><a href="#cb8-39" aria-hidden="true" tabindex="-1"></a>  <span class="cf">else</span></span>
 <span id="cb8-40"><a href="#cb8-40" aria-hidden="true" tabindex="-1"></a>    <span class="op">{</span></span>
 <span id="cb8-41"><a href="#cb8-41" aria-hidden="true" tabindex="-1"></a>      <span class="co">/* There is already a double-colon entry for this file.  */</span></span>
-<span id="cb8-42"><a href="#cb8-42" aria-hidden="true" tabindex="-1"></a>      <span class="kw">new</span><span class="op">-&gt;</span>double_colon <span class="op">=</span> f<span class="op">;</span></span>
-<span id="cb8-43"><a href="#cb8-43" aria-hidden="true" tabindex="-1"></a>      f<span class="op">-&gt;</span>last<span class="op">-&gt;</span>prev <span class="op">=</span> <span class="kw">new</span><span class="op">;</span></span>
-<span id="cb8-44"><a href="#cb8-44" aria-hidden="true" tabindex="-1"></a>      f<span class="op">-&gt;</span>last <span class="op">=</span> <span class="kw">new</span><span class="op">;</span></span>
+<span id="cb8-42"><a href="#cb8-42" aria-hidden="true" tabindex="-1"></a>      new<span class="op">-&gt;</span>double_colon <span class="op">=</span> f<span class="op">;</span></span>
+<span id="cb8-43"><a href="#cb8-43" aria-hidden="true" tabindex="-1"></a>      f<span class="op">-&gt;</span>last<span class="op">-&gt;</span>prev <span class="op">=</span> new<span class="op">;</span></span>
+<span id="cb8-44"><a href="#cb8-44" aria-hidden="true" tabindex="-1"></a>      f<span class="op">-&gt;</span>last <span class="op">=</span> new<span class="op">;</span></span>
 <span id="cb8-45"><a href="#cb8-45" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
 <span id="cb8-46"><a href="#cb8-46" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-47"><a href="#cb8-47" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> <span class="kw">new</span><span class="op">;</span></span>
+<span id="cb8-47"><a href="#cb8-47" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> new<span class="op">;</span></span>
 <span id="cb8-48"><a href="#cb8-48" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
 <p>There are two details worth discussing. The first concerns the
 following code:</p>
-<div class="sourceCode" id="cb9"><pre
-class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a> <span class="cf">if</span> <span class="op">(</span>underscored<span class="op">)</span> <span class="op">{</span></span>
+<div class="sourceCode" id="cb9"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a> <span class="cf">if</span> <span class="op">(</span>underscored<span class="op">)</span> <span class="op">{</span></span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>    name <span class="op">=</span> name <span class="op">+</span> <span class="dv">1</span><span class="op">;</span></span>
 <span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span>   </span></code></pre></div>
 <p>If I detect that a name begins with an underscore, I remove the
