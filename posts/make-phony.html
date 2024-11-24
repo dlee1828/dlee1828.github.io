@@ -290,6 +290,7 @@ class="sourceCode makefile"><code class="sourceCode makefile"><span id="cb3-1"><
 <code>make install</code> as usual, and <code>clean</code> and
 <code>install</code> would be treated as phony targets.</p>
 <p>I decided to try adding this feature to Make.</p>
+<h2 id="setting-up">Setting up</h2>
 <p>I arbitrarily chose to work with version 4.3 of Make, released in
 2020. I downloaded the source code and set up an Ubuntu Docker container
 within which to build and run Make.</p>
@@ -309,6 +310,7 @@ to limit the maximum number of open file descriptors. However, Docker
 prevents this from happening, which results in a segmentation fault when
 the test runs. To deal with this, I just ran <code>ulimit -n 512</code>
 manually prior to running the test, and that got it to pass.</p>
+<h2 id="gathering-information">Gathering information</h2>
 <p>I spent some time sifting through the code to determine how to
 implement my underscore-phony-target feature. I was able to gather the
 following facts:</p>
@@ -349,6 +351,7 @@ gets called in <code>main</code>. <code>read_all_makefiles</code> calls
 <code>files</code> hash table. When Make reads a Makefile, it calls
 <code>enter_file</code> with the name of each target.</li>
 </ol>
+<h2 id="writing-code">Writing code</h2>
 <p>From here, it seemed like what I might be able to do is the
 following: in <code>enter_file</code>, detect if the name of the target
 begins with an underscore. If it does, modify the target’s associated
@@ -415,6 +418,7 @@ does not exist.</p>
 <span id="cb8-46"><a href="#cb8-46" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb8-47"><a href="#cb8-47" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> new<span class="op">;</span></span>
 <span id="cb8-48"><a href="#cb8-48" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<h2 id="discussion">Discussion</h2>
 <p>There are two details worth discussing. The first concerns the
 following code:</p>
 <div class="sourceCode" id="cb9"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a> <span class="cf">if</span> <span class="op">(</span>underscored<span class="op">)</span> <span class="op">{</span></span>
@@ -451,6 +455,7 @@ table without that entry being marked as phony. And if we only set
 underscored files to phony upon creation, then our target will not get
 marked as phony, even when its rule is encountered and
 <code>enter_file</code> gets called with its underscored name.</p>
+<h2 id="testing">Testing</h2>
 <p>After making these changes, I tested the new functionality with the
 following Makefile:</p>
 <div class="sourceCode" id="cb11"><pre
