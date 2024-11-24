@@ -41,6 +41,8 @@ The user could then run `make clean` or `make install` as usual, and `clean` and
 
 I decided to try adding this feature to Make.
 
+## Setting up 
+
 I arbitrarily chose to work with version 4.3 of Make, released in 2020. I downloaded the source code and set up an Ubuntu Docker container within which to build and run Make. 
 
 After building Make, I ran the provided tests and noticed that one test failed:
@@ -54,6 +56,8 @@ FAILED (0/1 passed)
 ```
 
 After doing some digging, I learned that the reason this test failed was because Docker prevents programs from setting system-wide limits through `ulimit` (see [here](https://stackoverflow.com/a/24331638)). The `fopen-fail` test attempts to use `ulimit -n 512` to limit the maximum number of open file descriptors. However, Docker prevents this from happening, which results in a segmentation fault when the test runs. To deal with this, I just ran `ulimit -n 512` manually prior to running the test, and that got it to pass.
+
+## Gathering information
 
 I spent some time sifting through the code to determine how to implement my underscore-phony-target feature. I was able to gather the following facts:
 
@@ -89,7 +93,7 @@ static struct hash_table files;
 
 3. There is a function called `read_all_makefiles` which gets called in `main`. `read_all_makefiles` calls `eval_makefile` which calls `eval` which calls `record_files` which calls `enter_file`. `enter_file` is used to add and retrieve entries from the `files` hash table. When Make reads a Makefile, it calls `enter_file` with the name of each target. 
     
-    
+## Writing code
 
 From here, it seemed like what I might be able to do is the following: in `enter_file`, detect if the name of the target begins with an underscore. If it does, modify the target’s associated `file` struct to indicate that it is phony. 
 
@@ -161,6 +165,8 @@ enter_file (const char *name)
 }
 ```
 
+## Discussion
+
 There are two details worth discussing. The first concerns the following code:
 
 ```c
@@ -184,6 +190,8 @@ Moreover, a user should be able to run this recipe using `make this_is_phony`, w
 So I remove the underscore in `enter_file` so that the target is stored internally with its non-underscored name. 
 
 Also, I call `make_file_phony` both when creating a new file entry in the hash table *and* when retrieving an existing entry. This may seem unnecessary - shouldn’t we only need to set the file to phony when its entry is first created? This is what I thought initially. However, I realized that we actually need to call `make_file_phony` in both cases because of what I described above: a phony target can be referenced without an underscore. And it is possible for `enter_file` to get called with a phony target’s non-underscored name prior to getting called with its underscored name. If this happens, an entry for the target will get created in the hash table without that entry being marked as phony. And if we only set underscored files to phony upon creation, then our target will not get marked as phony, even when its rule is encountered and `enter_file` gets called with its underscored name. 
+
+## Testing
 
 After making these changes, I tested the new functionality with the following Makefile:
 
