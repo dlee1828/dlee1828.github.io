@@ -13,7 +13,8 @@ def add_post(post_id: str, post_title: str):
     markdown_file_path = f"{local_dir}/markdown/{post_id}.md"
 
     # Manually ensure that the min-width is 50% of the page
-    styling_text = "```{=html}\n<style>\nbody { min-width: 50% !important; }\n</style>\n```\n"
+    # Also set the font
+    styling_text = "```{=html}\n<style>\nbody { min-width: 50% !important;\nfont-family: Arial, Verdana, Tahoma, sans-serif; }\n</style>\n```\n"
     # Also add back link
     back_link_text = "<center align='center'><a href='../index.html'>Back</a></center>\n"
     with open(markdown_file_path, "r") as file:
