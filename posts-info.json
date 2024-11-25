@@ -2,7 +2,7 @@
     "posts": [
         {
             "id": "rbtrees",
-            "title": "Intuitive Derivation of Red Black Tree Operations"
+            "title": "Intuitive Derivation of Red-Black Tree Balancing Operations"
         },
         {
             "id": "make-phony",

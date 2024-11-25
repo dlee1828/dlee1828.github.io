@@ -176,8 +176,9 @@
 body { min-width: 50% !important;
 font-family: Arial, Verdana, Tahoma, sans-serif; }
 </style>
-<h1 id="intuitive-derivation-of-red-black-tree-operations">Intuitive
-Derivation of Red Black Tree Operations</h1>
+<h1
+id="intuitive-derivation-of-red-black-tree-balancing-operations">Intuitive
+Derivation of Red-Black Tree Balancing Operations</h1>
 <h2 id="introduction">Introduction</h2>
 <p>Red-black trees can be difficult to understand. In particular, the
 operations prescribed to handle the various cases one can encounter when
@@ -384,12 +385,15 @@ work. We begin by setting the node to null.</p>
 <p><img
 src="Red%20Black%20Trees%20148cc037f961801aaeecd7d3a7520a53/Screenshot_2024-11-24_at_6.08.30_PM.png"
 width="400" /></p>
-<p>Here, X is our null node. We are in a situation where the path from
-the root to X has one fewer black node than it should. Thus we must
-somehow add a black node to the path from the root to this node. This is
-difficult because if we simply try to recolor a red node along this path
-black, we will fix the path to X but will add an extra black node to all
-other paths containing that recolored node.</p>
+<p>Here, X is our null node. Note that X’s sibling A cannot be null
+because if it was, the original tree would have violated the black
+rule.</p>
+<p>We are in a situation where the path from the root to X has one fewer
+black node than it should. Thus we must somehow add a black node to the
+path from the root to this node. This is difficult because if we simply
+try to recolor a red node along this path black, we will fix the path to
+X but will add an extra black node to all other paths containing that
+recolored node.</p>
 <p>Recall that a black rotate-swap can be used to transfer a black node
 from one subtree’s ancestry to another’s. We could try to use a black
 rotate-swap to add a black node to X’s ancestry. However, we would then
@@ -403,7 +407,7 @@ src="Red%20Black%20Trees%20148cc037f961801aaeecd7d3a7520a53/Screenshot_2024-11-2
 X’s ancestry. We subsequently change D’s color from red to black to
 restore its black node count. Note that this technique can be used to
 fix our tree regardless of what P’s original color was.</p>
-<p>So we seemed to have solved a case where both of the following are
+<p>So we seem to have solved a case where both of the following are
 true:</p>
 <ol type="1">
 <li>X’s outer nephew (D) is red.</li>

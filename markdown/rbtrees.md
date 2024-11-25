@@ -1,4 +1,4 @@
-# Intuitive Derivation of Red Black Tree Operations
+# Intuitive Derivation of Red-Black Tree Balancing Operations
 
 ## Introduction
 
@@ -131,7 +131,10 @@ If the node has no children and is black, we will need to do some work. We begin
 
 ![](Red%20Black%20Trees%20148cc037f961801aaeecd7d3a7520a53/Screenshot_2024-11-24_at_6.08.30_PM.png){width=400}
 
-Here, X is our null node. We are in a situation where the path from the root to X has one fewer black node than it should. Thus we must somehow add a black node to the path from the root to this node. This is difficult because if we simply try to recolor a red node along this path black, we will fix the path to X but will add an extra black node to all other paths containing that recolored node. 
+Here, X is our null node. 
+Note that X's sibling A cannot be null because if it was, the original tree would have violated the black rule. 
+
+We are in a situation where the path from the root to X has one fewer black node than it should. Thus we must somehow add a black node to the path from the root to this node. This is difficult because if we simply try to recolor a red node along this path black, we will fix the path to X but will add an extra black node to all other paths containing that recolored node. 
 
 Recall that a black rotate-swap can be used to transfer a black node from one subtree’s ancestry to another’s. We could try to use a black rotate-swap to add a black node to X’s ancestry. However, we would then be left with a subtree which lacks a black node. If that subtree’s root happened to be red, then we could recolor its root black and we would have fixed our tree. So we seem to have solved for one possible case:
 
@@ -139,7 +142,7 @@ Recall that a black rotate-swap can be used to transfer a black node from one su
 
 Here, A is the black node being “transferred” from D’s ancestry to X’s ancestry. We subsequently change D’s color from red to black to restore its black node count. Note that this technique can be used to fix our tree regardless of what P’s original color was. 
 
-So we seemed to have solved a case where both of the following are true:
+So we seem to have solved a case where both of the following are true:
 
 1. X’s outer nephew (D) is red. 
 2. X’s sibling (A) is black. 
