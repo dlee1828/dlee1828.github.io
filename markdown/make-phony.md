@@ -2,9 +2,9 @@
 
 ## Motivation
 
-GNU Make is a neat tool. However, there are certain aspects of Make which occasionally receive criticism. One of these is the way phony targets are specified. 
+GNU Make is a neat tool. However, there are some aspects of Make which occasionally receive criticism. One of these is the way phony targets are specified. 
 
-Make reads from a set of rules written in a Makefile. Most of these rules are used to build files. But it’s also common to have rules which just run a series of commands without building files (`make clean`, `make install`, etc). It’s important to indicate to Make that such rules don’t correspond to actual files; otherwise, Make may skip running the commands. For example, if you happen to have a file named `install` in your project directory, and then you run `make install`, Make won’t actually run your install commands and you’ll get the following message: 
+Make reads from a set of rules written in a Makefile. Most of these rules are used to build files, but it’s also common to have rules which just run a series of commands (`make clean`, `make install`, etc). It’s important to indicate to Make that such rules don’t correspond to actual files; otherwise, Make may skip running the commands. For example, if you happen to have a file named `install` in your project directory, and then you run `make install`, Make won’t actually run your install commands and you’ll receive the following message: 
 
 ```
 make: 'install' is up to date.
@@ -29,7 +29,8 @@ But this syntax is a bit awkward. To quote from the README of [just](https://git
 > …the syntax is verbose and can be hard to remember. The explicit list of phony targets, written separately from the recipe definitions, also introduces the risk of accidentally defining a new non-phony target.
 > 
 
-A simple way to improve this syntax would be to allow users to specify phony targets directly in rules themselves. Consider, for example, if you could indicate that a target is phony by prefixing its name with  an underscore:
+A simple way to improve this syntax would be to allow users to specify phony targets directly in their rules.
+Consider, for example, if you could indicate that a target is phony by prefixing its name with an underscore:
 
 ```makefile
 _clean:
@@ -45,9 +46,8 @@ I decided to try adding this feature to Make.
 
 ## Setting up 
 
-I arbitrarily chose to work with version 4.3 of Make, released in 2020. I downloaded the source code and set up an Ubuntu Docker container within which to build and run Make. 
-
-After building Make, I ran the provided tests and noticed that one test failed:
+I chose to work with version 4.3 of Make, released in 2020. 
+After building Make inside an Ubuntu Docker container, I ran the provided tests and noticed that one test failed:
 
 ```
 misc/fopen-fail ......................................... 
@@ -57,11 +57,11 @@ Caught signal 11!
 FAILED (0/1 passed)
 ```
 
-After doing some digging, I learned that the reason this test failed was because Docker prevents programs from setting system-wide limits through `ulimit` (see [here](https://stackoverflow.com/a/24331638)). The `fopen-fail` test attempts to use `ulimit -n 512` to limit the maximum number of open file descriptors. However, Docker prevents this from happening, which results in a segmentation fault when the test runs. To deal with this, I just ran `ulimit -n 512` manually prior to running the test, and that got it to pass.
+After some digging, I learned that the reason this test failed was because Docker prevents programs from setting system-wide limits through `ulimit` (see [here](https://stackoverflow.com/a/24331638)). The `fopen-fail` test attempts to use `ulimit -n 512` to limit the maximum number of open file descriptors. But Docker prevents this from happening, which results in a segmentation fault when the test runs. To deal with this, I ran `ulimit -n 512` manually prior to running the test, and that got it to pass.
 
 ## Gathering information
 
-I spent some time sifting through the code to determine how to implement my underscore-phony-target feature. I was able to gather the following facts:
+After sifting through the code for a bit, I was able to gather the following facts:
 
 1. Information about targets and dependencies gets stored in a struct called `file`:
 
@@ -93,13 +93,14 @@ Notice that one of these members indicates whether the file is phony.
 static struct hash_table files;
 ```
 
-3. There is a function called `read_all_makefiles` which gets called in `main`. `read_all_makefiles` calls `eval_makefile` which calls `eval` which calls `record_files` which calls `enter_file`. `enter_file` is used to add and retrieve entries from the `files` hash table. When Make reads a Makefile, it calls `enter_file` with the name of each target. 
+3. There is a function called `read_all_makefiles` which gets called in `main`. `read_all_makefiles` eventually calls `enter_file`, a function which is used to add and retrieve entries from the `files` hash table. 
+When Make reads a Makefile `enter_file` is called with the name of each target. 
     
 ## Writing code
 
-From here, it seemed like what I might be able to do is the following: in `enter_file`, detect if the name of the target begins with an underscore. If it does, modify the target’s associated `file` struct to indicate that it is phony. 
+It seemed like what I could implement my feature by doing the following: in `enter_file`, detect if the name of the target begins with an underscore. If it does, modify the target’s associated `file` struct to indicate that it is phony. 
 
-This is a function I wrote which mimics what is done elsewhere in the code to establish that a particular file is a phony target:
+I wrote this function which mimics what is done elsewhere in the code to establish that a particular file is a phony target:
 
 ```c
 void make_file_phony (struct file* f) {
@@ -177,7 +178,7 @@ There are two details worth discussing. The first concerns the following code:
   }   
 ```
 
-If I detect that a name begins with an underscore, I remove the underscore from the name. The reason for doing this is that aside from in its own rule, I don’t want the user to have to use an underscore every time they reference a phony target. For example, if the user wants to list a phony target as a dependency, they should be able to do so without the underscore:
+If I detect that a name begins with an underscore, I remove the underscore from the name. I do this because aside from in its own rule, I don’t want the user to have to use an underscore every time they reference a phony target. For example, if the user wants to list a phony target as a dependency, they should be able to do so without the underscore:
 
 ```makefile
 _this_is_phony: 
@@ -187,9 +188,9 @@ another_target: this_is_phony
 	@echo "hi"
 ```
 
-Moreover, a user should be able to run this recipe using `make this_is_phony`, without needing to include the underscore. 
+Moreover, a user should be able to run this recipe using `make this_is_phony`, without needing the underscore. 
 
-So I remove the underscore in `enter_file` so that the target is stored internally with its non-underscored name. 
+So I remove the underscore in `enter_file` to ensure that the target is stored internally with its non-underscored name. 
 
 Also, I call `make_file_phony` both when creating a new file entry in the hash table *and* when retrieving an existing entry. This may seem unnecessary - shouldn’t we only need to set the file to phony when its entry is first created? This is what I thought initially. However, I realized that we actually need to call `make_file_phony` in both cases because of what I described above: a phony target can be referenced without an underscore. And it is possible for `enter_file` to get called with a phony target’s non-underscored name prior to getting called with its underscored name. If this happens, an entry for the target will get created in the hash table without that entry being marked as phony. And if we only set underscored files to phony upon creation, then our target will not get marked as phony, even when its rule is encountered and `enter_file` gets called with its underscored name. 
 
