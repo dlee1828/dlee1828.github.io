@@ -242,19 +242,18 @@ font-family: Arial, Verdana, Tahoma, sans-serif; }
 </style>
 <h1 id="adding-a-feature-to-gnu-make">Adding a Feature to GNU Make</h1>
 <h2 id="motivation">Motivation</h2>
-<p>GNU Make is a neat tool. However, there are certain aspects of Make
+<p>GNU Make is a neat tool. However, there are some aspects of Make
 which occasionally receive criticism. One of these is the way phony
 targets are specified.</p>
 <p>Make reads from a set of rules written in a Makefile. Most of these
-rules are used to build files. But it’s also common to have rules which
-just run a series of commands without building files
-(<code>make clean</code>, <code>make install</code>, etc). It’s
-important to indicate to Make that such rules don’t correspond to actual
-files; otherwise, Make may skip running the commands. For example, if
-you happen to have a file named <code>install</code> in your project
-directory, and then you run <code>make install</code>, Make won’t
-actually run your install commands and you’ll get the following
-message:</p>
+rules are used to build files, but it’s also common to have rules which
+just run a series of commands (<code>make clean</code>,
+<code>make install</code>, etc). It’s important to indicate to Make that
+such rules don’t correspond to actual files; otherwise, Make may skip
+running the commands. For example, if you happen to have a file named
+<code>install</code> in your project directory, and then you run
+<code>make install</code>, Make won’t actually run your install commands
+and you’ll receive the following message:</p>
 <pre><code>make: &#39;install&#39; is up to date.</code></pre>
 <p>This happens because Make thinks that your rule is attempting to
 build a file called <code>install</code>, and it notices that this file
@@ -279,9 +278,9 @@ of phony targets, written separately from the recipe definitions, also
 introduces the risk of accidentally defining a new non-phony target.</p>
 </blockquote>
 <p>A simple way to improve this syntax would be to allow users to
-specify phony targets directly in rules themselves. Consider, for
-example, if you could indicate that a target is phony by prefixing its
-name with an underscore:</p>
+specify phony targets directly in their rules. Consider, for example, if
+you could indicate that a target is phony by prefixing its name with an
+underscore:</p>
 <div class="sourceCode" id="cb3"><pre
 class="sourceCode makefile"><code class="sourceCode makefile"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="dv">_clean:</span></span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="er">    </span><span class="ch">@</span><span class="fu">echo </span><span class="st">&quot;Cleaning...&quot;</span></span>
@@ -293,28 +292,25 @@ class="sourceCode makefile"><code class="sourceCode makefile"><span id="cb3-1"><
 <code>install</code> would be treated as phony targets.</p>
 <p>I decided to try adding this feature to Make.</p>
 <h2 id="setting-up">Setting up</h2>
-<p>I arbitrarily chose to work with version 4.3 of Make, released in
-2020. I downloaded the source code and set up an Ubuntu Docker container
-within which to build and run Make.</p>
-<p>After building Make, I ran the provided tests and noticed that one
-test failed:</p>
+<p>I chose to work with version 4.3 of Make, released in 2020. After
+building Make inside an Ubuntu Docker container, I ran the provided
+tests and noticed that one test failed:</p>
 <pre><code>misc/fopen-fail ......................................... 
 Error running make (expected 512; got 11): &#39;make&#39; &#39;-f&#39; &#39;work/misc/fopen-fail.mk&#39;
 
 Caught signal 11!
 FAILED (0/1 passed)</code></pre>
-<p>After doing some digging, I learned that the reason this test failed
-was because Docker prevents programs from setting system-wide limits
-through <code>ulimit</code> (see <a
+<p>After some digging, I learned that the reason this test failed was
+because Docker prevents programs from setting system-wide limits through
+<code>ulimit</code> (see <a
 href="https://stackoverflow.com/a/24331638">here</a>). The
 <code>fopen-fail</code> test attempts to use <code>ulimit -n 512</code>
-to limit the maximum number of open file descriptors. However, Docker
+to limit the maximum number of open file descriptors. But Docker
 prevents this from happening, which results in a segmentation fault when
-the test runs. To deal with this, I just ran <code>ulimit -n 512</code>
+the test runs. To deal with this, I ran <code>ulimit -n 512</code>
 manually prior to running the test, and that got it to pass.</p>
 <h2 id="gathering-information">Gathering information</h2>
-<p>I spent some time sifting through the code to determine how to
-implement my underscore-phony-target feature. I was able to gather the
+<p>After sifting through the code for a bit, I was able to gather the
 following facts:</p>
 <ol type="1">
 <li>Information about targets and dependencies gets stored in a struct
@@ -346,20 +342,19 @@ present in the Makefile get stored in a hash table called
 <div class="sourceCode" id="cb6"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="dt">static</span> <span class="kw">struct</span> hash_table files<span class="op">;</span></span></code></pre></div>
 <ol start="3" type="1">
 <li>There is a function called <code>read_all_makefiles</code> which
-gets called in <code>main</code>. <code>read_all_makefiles</code> calls
-<code>eval_makefile</code> which calls <code>eval</code> which calls
-<code>record_files</code> which calls <code>enter_file</code>.
-<code>enter_file</code> is used to add and retrieve entries from the
-<code>files</code> hash table. When Make reads a Makefile, it calls
-<code>enter_file</code> with the name of each target.</li>
+gets called in <code>main</code>. <code>read_all_makefiles</code>
+eventually calls <code>enter_file</code>, a function which is used to
+add and retrieve entries from the <code>files</code> hash table. When
+Make reads a Makefile <code>enter_file</code> is called with the name of
+each target.</li>
 </ol>
 <h2 id="writing-code">Writing code</h2>
-<p>From here, it seemed like what I might be able to do is the
+<p>It seemed like what I could implement my feature by doing the
 following: in <code>enter_file</code>, detect if the name of the target
 begins with an underscore. If it does, modify the target’s associated
 <code>file</code> struct to indicate that it is phony.</p>
-<p>This is a function I wrote which mimics what is done elsewhere in the
-code to establish that a particular file is a phony target:</p>
+<p>I wrote this function which mimics what is done elsewhere in the code
+to establish that a particular file is a phony target:</p>
 <div class="sourceCode" id="cb7"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> make_file_phony <span class="op">(</span><span class="kw">struct</span> file<span class="op">*</span> f<span class="op">)</span> <span class="op">{</span></span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  f<span class="op">-&gt;</span>phony <span class="op">=</span> <span class="dv">1</span><span class="op">;</span></span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  f<span class="op">-&gt;</span>is_target <span class="op">=</span> <span class="dv">1</span><span class="op">;</span></span>
@@ -427,11 +422,11 @@ following code:</p>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>    name <span class="op">=</span> name <span class="op">+</span> <span class="dv">1</span><span class="op">;</span></span>
 <span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span>   </span></code></pre></div>
 <p>If I detect that a name begins with an underscore, I remove the
-underscore from the name. The reason for doing this is that aside from
-in its own rule, I don’t want the user to have to use an underscore
-every time they reference a phony target. For example, if the user wants
-to list a phony target as a dependency, they should be able to do so
-without the underscore:</p>
+underscore from the name. I do this because aside from in its own rule,
+I don’t want the user to have to use an underscore every time they
+reference a phony target. For example, if the user wants to list a phony
+target as a dependency, they should be able to do so without the
+underscore:</p>
 <div class="sourceCode" id="cb10"><pre
 class="sourceCode makefile"><code class="sourceCode makefile"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="dv">_this_is_phony:</span><span class="dt"> </span></span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="er">    </span><span class="ch">@</span><span class="fu">echo </span><span class="st">&quot;hi&quot;</span></span>
@@ -439,10 +434,9 @@ class="sourceCode makefile"><code class="sourceCode makefile"><span id="cb10-1">
 <span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="dv">another_target:</span><span class="dt"> this_is_phony</span></span>
 <span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a><span class="er">    </span><span class="ch">@</span><span class="fu">echo </span><span class="st">&quot;hi&quot;</span></span></code></pre></div>
 <p>Moreover, a user should be able to run this recipe using
-<code>make this_is_phony</code>, without needing to include the
-underscore.</p>
-<p>So I remove the underscore in <code>enter_file</code> so that the
-target is stored internally with its non-underscored name.</p>
+<code>make this_is_phony</code>, without needing the underscore.</p>
+<p>So I remove the underscore in <code>enter_file</code> to ensure that
+the target is stored internally with its non-underscored name.</p>
 <p>Also, I call <code>make_file_phony</code> both when creating a new
 file entry in the hash table <em>and</em> when retrieving an existing
 entry. This may seem unnecessary - shouldn’t we only need to set the
