@@ -307,8 +307,8 @@ href="https://stackoverflow.com/a/24331638">here</a>). The
 <code>fopen-fail</code> test attempts to use <code>ulimit -n 512</code>
 to limit the maximum number of open file descriptors. But Docker
 prevents this from happening, which results in a segmentation fault when
-the test runs. To deal with this, I ran <code>ulimit -n 512</code>
-manually prior to running the test, and that got it to pass.</p>
+the test runs. So I manually ran <code>ulimit -n 512</code> prior to
+running the test, and that got it to pass.</p>
 <h2 id="gathering-information">Gathering information</h2>
 <p>After sifting through the code for a bit, I was able to gather the
 following facts:</p>
@@ -345,13 +345,13 @@ present in the Makefile get stored in a hash table called
 gets called in <code>main</code>. <code>read_all_makefiles</code>
 eventually calls <code>enter_file</code>, a function which is used to
 add and retrieve entries from the <code>files</code> hash table. When
-Make reads a Makefile <code>enter_file</code> is called with the name of
-each target.</li>
+Make reads a Makefile, <code>enter_file</code> is called with the name
+of each target.</li>
 </ol>
 <h2 id="writing-code">Writing code</h2>
-<p>It seemed like what I could implement my feature by doing the
-following: in <code>enter_file</code>, detect if the name of the target
-begins with an underscore. If it does, modify the target’s associated
+<p>It seemed like I could implement my feature by doing the following:
+in <code>enter_file</code>, detect if the name of the target begins with
+an underscore. If it does, modify the target’s associated
 <code>file</code> struct to indicate that it is phony.</p>
 <p>I wrote this function which mimics what is done elsewhere in the code
 to establish that a particular file is a phony target:</p>
@@ -364,8 +364,8 @@ to establish that a particular file is a phony target:</p>
 <p>I set <code>phony</code> and <code>target</code> to 1 and set
 variables storing modification times to values indicating that the file
 does not exist.</p>
-<p>Once I had this function, I used it in the body of
-<code>enter_file</code> as such:</p>
+<p>I then used this function in the body of <code>enter_file</code> as
+such:</p>
 <p>(⬅️ indicates a line I added)</p>
 <div class="sourceCode" id="cb8"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="kw">struct</span> file <span class="op">*</span></span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>enter_file <span class="op">(</span><span class="dt">const</span> <span class="dt">char</span> <span class="op">*</span>name<span class="op">)</span></span>
@@ -447,9 +447,9 @@ above: a phony target can be referenced without an underscore. And it is
 possible for <code>enter_file</code> to get called with a phony target’s
 non-underscored name prior to getting called with its underscored name.
 If this happens, an entry for the target will get created in the hash
-table without that entry being marked as phony. And if we only set
+table without that entry being marked phony. And if we only set
 underscored files to phony upon creation, then our target will not get
-marked as phony, even when its rule is encountered and
+marked phony, even when its rule is encountered and
 <code>enter_file</code> gets called with its underscored name.</p>
 <h2 id="testing">Testing</h2>
 <p>After making these changes, I tested the new functionality with the

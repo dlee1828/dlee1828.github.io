@@ -57,7 +57,7 @@ Caught signal 11!
 FAILED (0/1 passed)
 ```
 
-After some digging, I learned that the reason this test failed was because Docker prevents programs from setting system-wide limits through `ulimit` (see [here](https://stackoverflow.com/a/24331638)). The `fopen-fail` test attempts to use `ulimit -n 512` to limit the maximum number of open file descriptors. But Docker prevents this from happening, which results in a segmentation fault when the test runs. To deal with this, I ran `ulimit -n 512` manually prior to running the test, and that got it to pass.
+After some digging, I learned that the reason this test failed was because Docker prevents programs from setting system-wide limits through `ulimit` (see [here](https://stackoverflow.com/a/24331638)). The `fopen-fail` test attempts to use `ulimit -n 512` to limit the maximum number of open file descriptors. But Docker prevents this from happening, which results in a segmentation fault when the test runs. So I manually ran `ulimit -n 512` prior to running the test, and that got it to pass.
 
 ## Gathering information
 
@@ -94,11 +94,11 @@ static struct hash_table files;
 ```
 
 3. There is a function called `read_all_makefiles` which gets called in `main`. `read_all_makefiles` eventually calls `enter_file`, a function which is used to add and retrieve entries from the `files` hash table. 
-When Make reads a Makefile `enter_file` is called with the name of each target. 
+When Make reads a Makefile, `enter_file` is called with the name of each target. 
     
 ## Writing code
 
-It seemed like what I could implement my feature by doing the following: in `enter_file`, detect if the name of the target begins with an underscore. If it does, modify the target’s associated `file` struct to indicate that it is phony. 
+It seemed like I could implement my feature by doing the following: in `enter_file`, detect if the name of the target begins with an underscore. If it does, modify the target’s associated `file` struct to indicate that it is phony. 
 
 I wrote this function which mimics what is done elsewhere in the code to establish that a particular file is a phony target:
 
@@ -113,7 +113,7 @@ void make_file_phony (struct file* f) {
 
 I set `phony` and `target` to 1 and set variables storing modification times to values indicating that the file does not exist. 
 
-Once I had this function, I used it in the body of `enter_file` as such:
+I then used this function in the body of `enter_file` as such:
 
 (⬅️ indicates a line I added)
 
@@ -192,7 +192,7 @@ Moreover, a user should be able to run this recipe using `make this_is_phony`, w
 
 So I remove the underscore in `enter_file` to ensure that the target is stored internally with its non-underscored name. 
 
-Also, I call `make_file_phony` both when creating a new file entry in the hash table *and* when retrieving an existing entry. This may seem unnecessary - shouldn’t we only need to set the file to phony when its entry is first created? This is what I thought initially. However, I realized that we actually need to call `make_file_phony` in both cases because of what I described above: a phony target can be referenced without an underscore. And it is possible for `enter_file` to get called with a phony target’s non-underscored name prior to getting called with its underscored name. If this happens, an entry for the target will get created in the hash table without that entry being marked as phony. And if we only set underscored files to phony upon creation, then our target will not get marked as phony, even when its rule is encountered and `enter_file` gets called with its underscored name. 
+Also, I call `make_file_phony` both when creating a new file entry in the hash table *and* when retrieving an existing entry. This may seem unnecessary - shouldn’t we only need to set the file to phony when its entry is first created? This is what I thought initially. However, I realized that we actually need to call `make_file_phony` in both cases because of what I described above: a phony target can be referenced without an underscore. And it is possible for `enter_file` to get called with a phony target’s non-underscored name prior to getting called with its underscored name. If this happens, an entry for the target will get created in the hash table without that entry being marked phony. And if we only set underscored files to phony upon creation, then our target will not get marked phony, even when its rule is encountered and `enter_file` gets called with its underscored name. 
 
 ## Testing
 
