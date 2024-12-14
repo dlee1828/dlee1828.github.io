@@ -67,7 +67,7 @@ In addition, a useful functionality that macros provide which cannot be achieved
 #define ASSERT(expr) (expr) ? 0 : printf("Assertion failed: %s\n", #expr) 
 ```
 
-Another important use case for macros is in utilizing predefined macros effectively.  For example, suppose you want to write a function which, when called, prints the line number of the line at which it is invoked. It’s easy to see how something like this could be useful for debugging. We already know that we can access the current line number through the predefined `__LINE__` macro. So you might think that something like this would work:
+Macros are also necessary to utilize predefined macros effectively.  For example, suppose you want to write a function which, when called, prints the line number of the line at which it is invoked. It’s easy to see how something like this could be useful for debugging. We already know that we can access the current line number through the predefined `__LINE__` macro. So you might think that something like this would work:
 
 ```cpp
 inline void PRINT_LINE() {
