@@ -231,19 +231,19 @@ liquidity.</p>
 aggressive strategies end up being. At first glance, it isn’t obvious
 that it would be difficult for a trading algorithm to rely on both limit
 orders and market orders. But we’ll soon see why this is the case.</p>
-<p>Most of the time, a passive algorithm is one engaged in market-making
-- the algorithm continuously posts both a bid and an ask in the order
-book, updating its prices frequently based on what it sees in the
-market. It doesn’t fill others’ orders; rather, it declares its
+<p>Most of the time, a passive algorithm is one engaged in
+market-making—the algorithm continuously posts both a bid and an ask in
+the order book, updating its prices frequently based on what it sees in
+the market. It doesn’t fill others’ orders; rather, it declares its
 willingness to buy and sell and waits for other market participants to
-engage with it This is why the interviewee from earlier stated that a
-passive strategy must “have an opinion all the time” - it is always
+engage with it. This is why the interviewee from earlier stated that a
+passive strategy must “have an opinion all the time”—it is always
 required to have quotes in the order book.</p>
 <p>An aggressive algorithm, on the other hand, doesn’t need to submit
 orders until it wants to. Most of the time, an aggressive algorithm is
 observing the market and performing quantitative analysis of what it
 sees. At some point, this analysis indicates that there is an
-opportunity to profit - the price is about to move. So the aggressive
+opportunity to profit—the price is about to move. So the aggressive
 algorithm submits market orders, taking liquidity from the order book,
 and then profits when the market moves in its favor.</p>
 <p>Note: there is a certain class of aggressive strategies which aim to
