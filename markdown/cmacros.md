@@ -57,7 +57,7 @@ int main() {
 }
 ```
 
-Generally, the use of macros is discouraged in C and C++ because they’re difficult to debug, can have strange side effects if you’re not careful, and pollute the global scope. Moreover, most of the things you’d want to accomplish through object-like or function-like macros can be done more safely using `const` variables and `inline` functions (`const` and `inline` didn’t exist in the early days of C, so macros were the only way to define constants or achieve inlined functions). 
+The use of macros is generally discouraged in C and C++ because they’re difficult to debug, can have strange side effects if you’re not careful, and pollute the global scope. Moreover, most of the things you’d want to accomplish through object-like or function-like macros can be done more safely using `const` variables and `inline` functions (`const` and `inline` didn’t exist in the early days of C, so macros were the only way to define constants or achieve inlined functions). 
 
 Despite their downsides, some people argue that macros can be useful for code generation in situations where you need to write a lot of similar definitions or statements. 
 
