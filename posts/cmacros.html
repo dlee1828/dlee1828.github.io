@@ -306,10 +306,9 @@ the only way to define constants or achieve inlined functions).</p>
 <p>Despite their downsides, some people argue that macros can be useful
 for code generation in situations where you need to write a lot of
 similar definitions or statements.</p>
-<p>In addition, a useful functionality that macros provide which cannot
-be achieved through other means is converting code into strings. For
-example, it would not be possible to implement an assert function like
-this without using macros:</p>
+<p>In addition, something you can only do with macros is convert code
+into strings. For example, it would not be possible to implement an
+assert function like this without a macro:</p>
 <div class="sourceCode" id="cb2"><pre
 class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="pp">#define ASSERT</span><span class="op">(</span>expr<span class="op">)</span><span class="pp"> </span><span class="op">(</span>expr<span class="op">)</span><span class="pp"> </span><span class="op">?</span><span class="pp"> </span><span class="dv">0</span><span class="pp"> </span><span class="op">:</span><span class="pp"> </span>printf<span class="op">(</span><span class="st">&quot;Assertion failed: </span><span class="sc">%s\n</span><span class="st">&quot;</span><span class="op">,</span><span class="pp"> </span><span class="op">#</span>expr<span class="op">)</span><span class="pp"> </span></span></code></pre></div>
 <p>Macros are also necessary to utilize predefined macros effectively.

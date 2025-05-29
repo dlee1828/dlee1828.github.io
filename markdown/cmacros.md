@@ -61,7 +61,7 @@ Generally, the use of macros is discouraged in C and C++ because they’re diffi
 
 Despite their downsides, some people argue that macros can be useful for code generation in situations where you need to write a lot of similar definitions or statements. 
 
-In addition, a useful functionality that macros provide which cannot be achieved through other means is converting code into strings.  For example, it would not be possible to implement an assert function like this without using macros:
+In addition, something you can only do with macros is convert code into strings.  For example, it would not be possible to implement an assert function like this without a macro:
 
 ```cpp
 #define ASSERT(expr) (expr) ? 0 : printf("Assertion failed: %s\n", #expr) 

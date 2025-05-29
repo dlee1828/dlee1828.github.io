@@ -1,6 +1,10 @@
 {
     "posts": [
         {
+            "id": "passive-vs-aggressive",
+            "title": "Passive vs Aggressive Strategies in High-Frequency Trading"
+        },
+        {
             "id": "rbtrees",
             "title": "Intuitive Derivation of Red-Black Tree Balancing Operations"
         },

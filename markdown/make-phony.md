@@ -2,9 +2,9 @@
 
 ## Motivation
 
-GNU Make is a neat tool. However, there are some aspects of Make which occasionally receive criticism. One of these is the way phony targets are specified. 
+GNU Make is a neat tool. However, there are some aspects of it which occasionally receive criticism. One of these is the way phony targets are specified. 
 
-Make reads from a set of rules written in a Makefile. Most of these rules are used to build files, but it’s also common to have rules which just run a series of commands (`make clean`, `make install`, etc). It’s important to indicate to Make that such rules don’t correspond to actual files; otherwise, Make may skip running the commands. For example, if you happen to have a file named `install` in your project directory, and then you run `make install`, Make won’t actually run your install commands and you’ll receive the following message: 
+Make reads from a set of rules written in a Makefile. Most of these rules are used to build files, but it’s also common to have rules which just run a series of commands (`make clean`, `make install`, etc). It’s important to indicate to Make that such rules don’t correspond to actual files, as otherwise, Make may skip running the commands. For example, if you happen to have a file named `install` in your project directory, and then you run `make install`, Make won’t actually run your install commands and you’ll receive the following message: 
 
 ```
 make: 'install' is up to date.
@@ -12,7 +12,7 @@ make: 'install' is up to date.
 
 This happens because Make thinks that your rule is attempting to build a file called `install`, and it notices that this file already exists. 
 
-The solution is to declare certain targets as phony, indicating that they don’t correspond to actual files. We do this by listing all phony targets as dependencies of a built-in target called `.PHONY`.
+The solution is to declare certain targets phony, indicating that they don’t correspond to actual files. We do this by listing all phony targets as dependencies of a built-in target called `.PHONY`.
 
 ```makefile
 .PHONY: clean install
@@ -57,7 +57,7 @@ Caught signal 11!
 FAILED (0/1 passed)
 ```
 
-After some digging, I learned that the reason this test failed was because Docker prevents programs from setting system-wide limits through `ulimit` (see [here](https://stackoverflow.com/a/24331638)). The `fopen-fail` test attempts to use `ulimit -n 512` to limit the maximum number of open file descriptors. But Docker prevents this from happening, which results in a segmentation fault when the test runs. So I manually ran `ulimit -n 512` prior to running the test, and that got it to pass.
+After some digging, I learned that the reason the test failed was because Docker prevents programs from setting system-wide limits through `ulimit` (see [here](https://stackoverflow.com/a/24331638)). The `fopen-fail` test attempts to use `ulimit -n 512` to limit the maximum number of open file descriptors. But Docker prevents this from happening, which results in a segmentation fault when the test runs. So I manually ran `ulimit -n 512` prior to running the test, and that got it to pass.
 
 ## Gathering information
 
@@ -192,11 +192,11 @@ Moreover, a user should be able to run this recipe using `make this_is_phony`, w
 
 So I remove the underscore in `enter_file` to ensure that the target is stored internally with its non-underscored name. 
 
-Also, I call `make_file_phony` both when creating a new file entry in the hash table *and* when retrieving an existing entry. This may seem unnecessary - shouldn’t we only need to set the file to phony when its entry is first created? This is what I thought initially. However, I realized that we actually need to call `make_file_phony` in both cases because of what I described above: a phony target can be referenced without an underscore. And it is possible for `enter_file` to get called with a phony target’s non-underscored name prior to getting called with its underscored name. If this happens, an entry for the target will get created in the hash table without that entry being marked phony. And if we only set underscored files to phony upon creation, then our target will not get marked phony, even when its rule is encountered and `enter_file` gets called with its underscored name. 
+Also, I call `make_file_phony` both when creating a new file entry in the hash table *and* when retrieving an existing entry. This may seem unnecessary - shouldn’t we only need to set the file to phony when its entry is first created? This is what I thought initially. However, I realized that calling `make_file_phony` in both cases is necessary because of what I described above: a phony target can be referenced without an underscore. And it is possible for `enter_file` to get called with a phony target’s non-underscored name prior to getting called with its underscored name. If this happens, an entry for the target will get created in the hash table without that entry being marked phony. And if we only set underscored files to phony upon creation, then our target will not get marked phony, even when its rule is encountered and `enter_file` gets called with its underscored name. 
 
 ## Testing
 
-After making these changes, I tested the new functionality with the following Makefile:
+After making these changes, I tested the new feature with the following Makefile:
 
 ```makefile
 # Phony target
