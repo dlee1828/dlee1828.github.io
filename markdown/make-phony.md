@@ -2,7 +2,7 @@
 
 ## Motivation
 
-GNU Make is a neat tool. However, there are some aspects of it which occasionally receive criticism. One of these is the way phony targets are specified. 
+GNU Make is a neat tool. However, it has some aspects which occasionally receive criticism. One of these is the way phony targets are specified. 
 
 Make reads from a set of rules written in a Makefile. Most of these rules are used to build files, but it’s also common to have rules which just run a series of commands (`make clean`, `make install`, etc). It’s important to indicate to Make that such rules don’t correspond to actual files, as otherwise, Make may skip running the commands. For example, if you happen to have a file named `install` in your project directory, and then you run `make install`, Make won’t actually run your install commands and you’ll receive the following message: 
 
