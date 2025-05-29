@@ -31,7 +31,7 @@ Most of the time, a passive algorithm is one engaged in market-making—the algo
 
 An aggressive algorithm, on the other hand, doesn’t need to submit orders until it wants to. Most of the time, an aggressive algorithm is observing the market and performing quantitative analysis of what it sees. At some point, this analysis indicates that there is an opportunity to profit—the price is about to move. So the aggressive algorithm submits market orders, taking liquidity from the order book, and then profits when the market moves in its favor. 
 
-Note: there is a certain class of aggressive strategies which aim to identify and pick off the stale quotes of other market participants before they have had time to update. Such strategies require little quantitative sophistication and are highly dependent on speed, and as such stand apart from most other aggressive strategies. For that reason, when we refer to aggressive strategies in this essay, we usually won’t be talking about these fast-and-dumb strategies. Yet it’s important to note that they exist. 
+Note: there is a certain class of aggressive strategies which aim to identify and pick off the stale quotes of other market participants before they have had time to update. Such strategies require little quantitative sophistication and are highly dependent on speed, and as such stand apart from most other aggressive strategies. For that reason, when we refer to aggressive strategies here, we usually won’t be talking about these fast-and-dumb strategies. Yet it’s important to note that they exist. 
 
 ## Hitting Singles vs Hitting Home Runs
 
