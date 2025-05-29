@@ -16,11 +16,11 @@ def add_post(post_id: str, post_title: str):
     # Also set the font
     styling_text = "```{=html}\n<style>\nbody { min-width: 50% !important;\nfont-family: Arial, Verdana, Tahoma, sans-serif; }\n</style>\n```\n"
     # Also add back link
-    back_link_text = "<center align='center'><a href='../index.html'>Back</a></center>\n"
+    back_link_text = "<center align='center'><a href='../index.html'>Back</a></center>"
     with open(markdown_file_path, "r") as file:
         original_text = file.read()
         new_text = styling_text + original_text
-        new_text = back_link_text + new_text
+        new_text = back_link_text + "\n\n" + new_text + "\n\n" + back_link_text
     with open(markdown_file_path, "w") as file:
         file.write(new_text)
 
