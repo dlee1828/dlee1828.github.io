@@ -297,9 +297,9 @@ because in most markets, orders at the same price level are arranged in
 a time-priority queue, meaning that if a market-maker wants its orders
 to be executed first at a particular price level, it must submit its
 orders before anyone else. This means that there are often races between
-different HFT’s to submit their orders as fast as possible to be in the
-front of the queue and thus be the first to have access to a profit
-opportunity.</p>
+different HFT’s to submit their orders as fast as possible, so that they
+can be in front of the queue and thus be the first to have access to a
+profit opportunity.</p>
 <p>This requirement for speed does not exist for an aggressive
 algorithm. Once an aggressive algorithm identifies a profit opportunity,
 while it is important to act on this opportunity immediately, its
@@ -366,8 +366,8 @@ being engineering the systems capable of executing them.</p>
 <p>Aggressive strategies, in contrast, do not tend to have an
 exceptional dependence on speed or robustness. As such, the core
 challenge of building aggressive strategies lies in developing the
-complex algorithms and mathematical models that power their price
-predictions. Mackenzie writes:</p>
+complex mathematical models that power their price predictions. As
+Mackenzie writes,</p>
 <blockquote>
 <p>Takers, we might say, can afford to concentrate on the mathematics of
 HFT, not on its engineering; makers need excellent engineering.</p>
